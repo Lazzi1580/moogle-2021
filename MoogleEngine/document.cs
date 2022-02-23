@@ -114,6 +114,11 @@ namespace MoogleEngine
 
             foreach (char c in palabra)
             {
+                if (c == '!' || c == '^')
+                {
+                    i++;
+                    continue;
+                }
                 if (!char.IsPunctuation(c) && char.IsLetterOrDigit(c))
                 {
                     sb.Append(c);

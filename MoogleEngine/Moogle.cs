@@ -12,12 +12,8 @@ public static class Moogle
     public static Dictionary<string, double> idf = new Dictionary<string, double>();
     public static List<DocumentP> ldoc = new List<DocumentP>();
 
-
-    public static SearchResult Query(string query)
+    public static void StarIndex()
     {
-        ldoc = new List<DocumentP>();
-        idf = new Dictionary<string, double>();
-        Gneral = new Dictionary<string, double>();
         var list = Directory.EnumerateFiles("..//Content", "*.txt");
         BuscarEnDirectorio();
         foreach (var i in list)
@@ -26,21 +22,40 @@ public static class Moogle
             ldoc.Add(d);
         }
 
+    }
+    public static SearchResult Query(string query)
+    {
         QueryD QueryD_Object = new QueryD(query);
+        SearchItem[] Resultados = new SearchItem[0];
+        int totalD = 0;
 
-        int totalD = QueryD_Object.Scores.Count;
-        SearchItem[] Resultados = new SearchItem[totalD];
+        if (RevisarOperadores(QueryD_Object.CadenasConOperadores))
         {
-            int i = 0;
-            foreach (string term in QueryD_Object.Scores.Keys)
+            totalD = QueryD_Object.ResultFOperators.Count;
+            Resultados = new SearchItem[totalD];
             {
-                Resultados[i] = new SearchItem(term, QueryD_Object.Scores[term] + "", QueryD_Object.Scores[term]);
-                i++;
+                int i = 0;
+                foreach (string term in QueryD_Object.ResultFOperators.Keys)
+                {
+                    Resultados[i] = new SearchItem(term, QueryD_Object.ResultFOperators[term] + "", QueryD_Object.ResultFOperators[term]);
+                    i++;
+                }
             }
         }
-
-
-        return new SearchResult(Resultados, query);
+        else
+        {
+            totalD = QueryD_Object.Scores.Count;
+            Resultados = new SearchItem[totalD];
+            {
+                int i = 0;
+                foreach (string term in QueryD_Object.Scores.Keys)
+                {
+                    Resultados[i] = new SearchItem(term, QueryD_Object.Scores[term] + "", QueryD_Object.Scores[term]);
+                    i++;
+                }
+            }
+        }
+        return new SearchResult(Resultados, QueryD.Sugerncia(query));
     }
 
     // Metodo para Buscar dentro de un  las respectivas busquedas del usuario
@@ -61,6 +76,18 @@ public static class Moogle
             }
         }
         idf = CalculoIDF(txts);
+    }
+
+    public static bool RevisarOperadores(string[] QueryConOperadores)
+    {
+        for (int i = 0; i < QueryConOperadores.Length; i++)
+        {
+            if (QueryConOperadores[i].Contains('!') || QueryConOperadores[i].Contains('^'))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 
