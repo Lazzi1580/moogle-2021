@@ -94,14 +94,21 @@ public static class Moogle
         }
         else
         {
-            return new SearchResult(Resultados, SugernciaK(query));
+
+            if (EstaPresente(query) == false)
+            {
+                return new SearchResult(Resultados, SugernciaK(query));
+            }
+            else
+            {
+                return new SearchResult(Resultados, query);
+            }
         }
     }
 
     //Metodo para la sugerencia a cada palabra
     public static string SugernciaK(string query)
     {
-
         string[] Convertir = query.Split(' ');
         string palabraDvol = "";
         //Itero el arreglo de string 
@@ -112,6 +119,16 @@ public static class Moogle
         }
 
         return palabraDvol;
+    }
+
+    public static bool EstaPresente(string query)
+    {
+        foreach (string term in Gneral.Keys)
+        {
+            if (term == DocumentP.EliminarSignos(query))
+                return true;
+        }
+        return false;
     }
 
     //Metodo para revisar si contiene operadores
