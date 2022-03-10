@@ -83,19 +83,20 @@ public static class Moogle
                 {
                     //Rellena el resultado final
                     Resultados[i] = new SearchItem((Path.GetFileNameWithoutExtension(term)), Snipet[term], QueryD_Object.Scores[term]);
+                    System.Console.WriteLine(term + " " + QueryD_Object.Scores[term]);
                     i++;
                 }
             }
         }
         //revisa si contiene Operadores 
-        if (ContieneOpp(query) == true)
+        if (ContieneOpp(query))
         {
             return new SearchResult(Resultados, query);
         }
         else
         {
 
-            if (EstaPresente(query) == false)
+            if (!EstaPresente(query))
             {
                 return new SearchResult(Resultados, SugernciaK(query));
             }
@@ -135,11 +136,8 @@ public static class Moogle
     public static bool ContieneOpp(string query)
     {
         //Reviso si contiene operadores
-        if (query.Contains('~') || query.Contains('!') || query.Contains('^') || query.Contains('*'))
-        {
-            return true;
-        }
-        return false;
+        return (query.Contains('~') || query.Contains('!') || query.Contains('^') || query.Contains('*'));
+
     }
 
 

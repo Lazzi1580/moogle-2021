@@ -539,7 +539,7 @@ namespace MoogleEngine
                             Operators[auto]++;
                             Operators[auto]++;
                             Operators[auto]++;
-                            Operators[auto]++;
+
                         }
                     }
                     else
@@ -561,7 +561,7 @@ namespace MoogleEngine
                 Operators[titulo]++;
                 Operators[titulo]++;
                 Operators[titulo]++;
-                Operators[titulo]++;
+
             }
         }
 
@@ -584,7 +584,7 @@ namespace MoogleEngine
             for (int i = 0; i < a.Length - 1; i++)
             {
                 //reviso si la Cual es el minmo entre las 2 posiciones o si El indice del menor numero es igual al siguiente
-                if (Math.Min(MinInd, a[i + 1]) == i + 1 || MinInd == a[i + 1])
+                if (Math.Min(a[MinInd], a[i + 1]) == a[i + 1] || MinInd == a[i + 1])
                 {
                     //Guardo en la varibale la posicion siguiente
                     MinInd = i + 1;
@@ -817,15 +817,14 @@ namespace MoogleEngine
             {
                 for (int k = 0; k < Moogle.ldoc.Count; k++)
                 {
-                    for (int j = 0; j < Moogle.ldoc[i].tf.Count; j++)
+
+                    if (!Moogle.ldoc[i].tf.ContainsKey(QueryWordsQ[i]))
                     {
-                        if (!Moogle.ldoc[i].tf.ContainsKey(QueryWordsQ[i]))
-                        {
-                            contador++;
-                        }
+                        contador++;
                     }
+
                 }
-                if (contador != 0)
+                if (contador == Moogle.ldoc.Count)
                 {
                     //Llama al metodo Sugerencia a cada palabra
                     QueryWordsQ[i] = Sugerncia(QueryWordsQ[i]);

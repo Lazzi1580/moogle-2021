@@ -147,6 +147,139 @@ public void TieneQueAparecer(string[] QueryWordsQ, string DebeApar)
         }
 ```
 
+`-Operador de Cercanía`: Este operador comienza iterando un arreglo de string el cual contiene las querys,revisamos si la posición en donde marca la iteraćion contiene el operador, en caso de esto suceder,revisamos si un string que iniciamos vacío contiene el término anteriora donde se encuentra la iteración, en caso de no revisamos si un entero llamado indice al cual le sumamos 2 es mayor que el arreglo de cadenas en caso de esto no suceder, revisamos si el arreglo de string en indices más 2 contiene un operador, en caso de que no suceda le agrego al string que inicializamos vacío los términos de la posición anterior y la siguiente en la que se encuentra el operador, guardamos en el intero indice el valor del lugar en donde se encuentra la iteración y a una variable bool q inicializmos en false la hacemos true. En el paso en donde revisamos si ya habíamos guardado el témino anterior de la iteración en caso de que esto ya hubiese sucedido lo que ocurre es que agregamos a la cadena un espacio vacío. Una vez terminado todo el proceso de la construcción de las querys a buscar por el operador, comienza el proceso de búsqueda lo primero es separar las palabras a buscar por espacios, entonces inicializo un entero de valor igual al tamaño del nuevo arreglo de strings con los términos a buscar, inicializo un arreglo de enteros con el tamaño del entero anterior, inicializo otro arreglo de enteros de tamaño igual a la cantidad de documentos, y por ultimo un arreglo de string de tamaño igual a la cantidad de documentos, acto seguido empiezo a iterar sobre mi lista de documentos,después en cada documento independiente itero sobre las líenas del documento, voy revisando en cada línea si contiene el término qu busco y si esto sucede itero sobre la línea, y reviso si el término e la línea es igual al el término que busco, en caso de serlo guardo el índice donde se encuentra y rompo el ciclo. Una vez realizado esto con todas las query tengo en diferentes arreglos los índices donde se encuentran cada términos ahora solo queda calcular la distancia de las querys en ese documento en espesífico por donde va la iteración, entonces guardamos el nombre del título de dicho documento, reviso si las querys estan contenidas en el doumento, si lo están le resto al mayor índice los menores, si la resta es 1 guardo el título del documento y
+reviso si está contenido en el diccionario de los documentos previos que se le mostrarán al usario si esto sucede le aumento 5 a su score, en caso de que la resta no sea 1 guardo el valor en un arreglo de enteros y así sucesivamente con todos los documentos. Una vez termina este proceso al arreglo que contenía las restas le paso un método auxiliar el cual extrae cual es el índice del menor de las restas, busco en el arreglo que contenía los documentos y cojo el título de este índice y a este documento le aumento 4 al valor de su score.
+
+```cs
+//Metodo para econtrar la cercania
+        public void Cercania(string[] query, List<DocumentP> ldoc)
+        {
+            //Inicializo un string vacio
+            string palabra = "";
+            //Inicializo un entero en 0
+            int indice = 0;
+            //Inicializo una variable boleana en falso
+            bool control = false;
+            //Itero la query
+            for (int i = 0; i < query.Length; i++)
+            {
+                //Reviso si en la posicion marcada contien el Operador
+                if (query[i].Contains('~'))
+                {
+                    //Reviso si no he guardado la palabra de la posicion anterior
+                    if (!palabra.Contains(query[i - 1]))
+                    {
+                        //Reviso si la longitud de la query es mayor que el indice +2
+                        if (query.Length > indice + 2)
+                        {
+                            //Reviso si la query en el indice+2 contiene el operador
+                            if (!query[indice + 2].Contains('~'))
+                            {
+                                //Si la condicion esperada sucede agrega la palabra de la posicion anterior y la que le sigue
+                                palabra += query[i - 1] + " " + query[i + 1];
+                                //Guardo el indice
+                                indice = i;
+                                //Hago la varible boleana true
+                                control = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //Sino pasa agrego solo la palabra de la  posicion siguiente
+                        palabra += " " + query[i + 1];
+                        //Guardo el indices
+                        indice = i;
+                    }
+                }
+            }
+            //Guardo en una arreglo de string las palabras a las que hay que buscarle la cercanis
+            string[] queryAb = palabra.Split(' ');
+            //Inicializo una variable entera de valor igal a la longitud del arreglo de string anterior
+            int entero = queryAb.Length;
+            //Declaro un un arreglo de enteros de longitud igual al valor de la variable anterior
+            int[] indices = new int[entero];
+            //Declaro un arreglo de entero de longitud igual a la cantidad de documentos
+            int[] restas = new int[ldoc.Count];
+            //Declaro un arreglo de string de longitud igual a la cantidad de documentos
+            string[] textos = new string[ldoc.Count];
+
+            //Itero por cada uno de los documentos
+            for (int d = 0; d < ldoc.Count; d++)
+            {
+                //Vacio la variable indice
+                indices.DefaultIfEmpty();
+                //Itero el arreglo de strings que contienen las palabras
+                for (int i = 0; i < queryAb.Length; i++)
+                {
+                    //itera el arreglo de string que contiene las lineas de cada documento
+                    for (int j = 0; j < ldoc[d].twordsS.Length; j++)
+                    {
+                        //Reviso si estas lineas contiene la palabra
+                        if (ldoc[d].twordsS[j].Contains(queryAb[i]))
+                        {
+                            //Reviso si la palabra que contiene la palabra asignada son iguales despues de eliminarle los signos de puntuacion
+                            if (DocumentP.EliminarSignos(ldoc[d].twordsS[j]) == queryAb[i])
+                            {
+                                //Guardo el indice y rompo el ciclo
+                                indices[i] = j;
+                                break;
+                            }
+                        }
+                    }
+                }
+                //Guardo el titulo del documento
+                textos[d] = ldoc[d].Tittle;
+                //Inicializo un entero en 0
+                int resta = 0;
+                //Inicializo un string vacio
+                string auto = "";
+                //Reviso si si ambas palabras estan contenidas en el docuemtno
+                if (ldoc[d].tf.ContainsKey(queryAb[0]) && ldoc[d].tf.ContainsKey(queryAb[1]))
+                {
+                    //Realizo la resta
+                    resta = indices[1] - indices[0];
+                    //Reviso si la resta es = a 1
+                    if (resta == 1)
+                    {
+                        //si lo es guardo el titulo
+                        auto = ldoc[d].Tittle;
+                        //Reviso si el diccionario de Operadores contiene el titulo
+                        if (Operators.ContainsKey(auto))
+                        {
+                            //Si lo contiene le sumo 5
+                            Operators[auto]++;
+                            Operators[auto]++;
+                            Operators[auto]++;
+                            Operators[auto]++;
+                            Operators[auto]++;
+
+                        }
+                    }
+                    else
+                    {
+                        //Sino le asigno resta en d a un arreglo de double
+                        restas[d] = resta;
+                    }
+                }
+            }
+            //a la resta final la igualo al valor minimo del arreglo anterior
+            int final = IndiceMin(restas);
+            //guardo el titulo del documento
+            string titulo = textos[final];
+            //Revisa SI el diccionario de operadores contiene el titulo
+            if (Operators.ContainsKey(titulo))
+            {
+                //Le suma 5
+                Operators[titulo]++;
+                Operators[titulo]++;
+                Operators[titulo]++;
+                Operators[titulo]++;
+
+            }
+        }
+```
+
 ---
 
 # Estructura de la representación de los documentos y consultas.
